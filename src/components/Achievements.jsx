@@ -15,7 +15,7 @@ const ACHIEVEMENTS = [
   {
     icon: <FaCloud />,
     title: 'CNCF LFX Mentorship Applicant',
-    date: '2024',
+    date: '2026',
     description:
       'Applied for the CNCF LFX Mentorship program to contribute to Chaos Mesh — implementing BDD testing framework for the chaos engineering platform.',
     side: 'left',
@@ -23,10 +23,18 @@ const ACHIEVEMENTS = [
   {
     icon: <FaRocket />,
     title: 'C4GT DMP Applicant',
-    date: '2024',
+    date: '2026',
     description:
       'Applied for Code for GovTech Digital Mentorship Program to work on Sugar Labs AI — integrating AI capabilities into open-source educational tools.',
     side: 'right',
+  },
+  {
+    icon: <FaCubes />,
+    title: 'GSIC Participant',
+    date: '2026',
+    description:
+      'Participated in the Global Social Innovation Challenge (GSIC).',
+    side: 'left',
   },
   {
     icon: <FaCode />,
@@ -34,23 +42,7 @@ const ACHIEVEMENTS = [
     date: '2023 – Present',
     description:
       'Contributed to ESP-Website (Django) — Bootstrap migration PRs merged. Active contributor to open source projects across the web ecosystem.',
-    side: 'left',
-  },
-  {
-    icon: <FaBookOpen />,
-    title: 'PyPI Published Package',
-    date: '2024',
-    description:
-      'Published "Terminal Notes Vault" on PyPI — an encrypted CLI notes manager using PBKDF2 key derivation for secure local storage.',
     side: 'right',
-  },
-  {
-    icon: <FaCubes />,
-    title: 'Web3 Projects on Flare Network',
-    date: '2024',
-    description:
-      'Built and deployed decentralized applications on Flare Network testnet — Lucky Card game and CyberCity conditional execution wallet.',
-    side: 'left',
   },
 ];
 
