@@ -4,7 +4,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import useRandomObject from '../hooks/useRandomObject';
 
 // Lazy load each tech object
-const Keyboard = lazy(() => import('./TechObjects/Keyboard'));
+import Keyboard from './TechObjects/Keyboard';
 const NeuralNet = lazy(() => import('./TechObjects/NeuralNet'));
 const LLMTokens = lazy(() => import('./TechObjects/LLMTokens'));
 const CPU = lazy(() => import('./TechObjects/CPU'));

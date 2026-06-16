@@ -84,7 +84,7 @@ export default function Navbar() {
         {/* Social Icons + Mobile Toggle */}
         <div className="flex items-center gap-4">
           <a
-            href="https://linkedin.com/in/premsingh"
+            href="https://www.linkedin.com/in/prem-singh-5b2709379/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-cyan transition-colors duration-300"
@@ -93,7 +93,7 @@ export default function Navbar() {
             <FaLinkedinIn size={18} />
           </a>
           <a
-            href="https://x.com/premsingh"
+            href="https://x.com/prem_singh_20"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-cyan transition-colors duration-300"

@@ -14,7 +14,7 @@ export default function Footer() {
 
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/premsingh"
+            href="https://github.com/prem-2006"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-500 hover:text-white transition-colors duration-300"
@@ -23,7 +23,7 @@ export default function Footer() {
             <FaGithub size={18} />
           </a>
           <a
-            href="https://linkedin.com/in/premsingh"
+            href="https://www.linkedin.com/in/prem-singh-5b2709379/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-500 hover:text-white transition-colors duration-300"
@@ -32,7 +32,7 @@ export default function Footer() {
             <FaLinkedinIn size={18} />
           </a>
           <a
-            href="https://x.com/premsingh"
+            href="https://x.com/prem_singh_20"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-500 hover:text-white transition-colors duration-300"

@@ -52,17 +52,17 @@ const SOCIAL_LINKS = [
   },
   {
     icon: <FaGithub size={20} />,
-    href: 'https://github.com/premsingh',
+    href: 'https://github.com/prem-2006',
     label: 'GitHub',
   },
   {
     icon: <FaLinkedinIn size={20} />,
-    href: 'https://linkedin.com/in/premsingh',
+    href: 'https://www.linkedin.com/in/prem-singh-5b2709379/',
     label: 'LinkedIn',
   },
   {
     icon: <FaXTwitter size={20} />,
-    href: 'https://x.com/premsingh',
+    href: 'https://x.com/prem_singh_20',
     label: 'X / Twitter',
   },
 ];
