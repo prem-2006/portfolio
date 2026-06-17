@@ -36,16 +36,11 @@ const WASD_KEYS = new Set(['W', 'A', 'S', 'D']);
 const MODIFIER_KEYS = new Set(['Esc', 'Tab', 'Caps', '⇧', 'Ctrl', '❖', 'Alt', 'Fn', '☰', '↵', '⌫']);
 const NUMBER_ROW = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']);
 
-function getNeonColor(label, rowIdx) {
-  if (WASD_KEYS.has(label)) return '#00f0ff';
-  if (label === '↵' || label === 'Esc') return '#ff3366';
-  if (label === '⌫') return '#ff6b35';
-  if (MODIFIER_KEYS.has(label)) return '#8855ff';
-  if (NUMBER_ROW.has(label)) return '#00ff88';
-  if (rowIdx === 1) return '#00e5ff';
-  if (rowIdx === 2) return '#00ffcc';
-  if (rowIdx === 3) return '#66bbff';
-  return '#4488ff';
+function getKeyColors(label) {
+  if (label === 'Esc') return { body: '#c45555', top: '#d46565' }; // retro red esc
+  if (label === '↵') return { body: '#5588c4', top: '#6598d4' }; // retro blue enter
+  if (MODIFIER_KEYS.has(label)) return { body: '#b0afa4', top: '#c0bfb4' };
+  return { body: '#dbdad3', top: '#ebeae3' }; // Alphanumeric
 }
 
 // Keys are laid out on the XZ plane: width=X, depth=Z, height=Y (sticking up)
@@ -53,12 +48,11 @@ function Keycap({ position, width, label, rowIdx }) {
   const keyW = width * U - KEY_GAP;   // X dimension
   const keyD = U - KEY_GAP;            // Z dimension
   const keyH = KEY_HEIGHT;              // Y dimension (sticking up)
-  const isWASD = WASD_KEYS.has(label);
-  const neonColor = getNeonColor(label, rowIdx);
+  const colors = getKeyColors(label);
 
   return (
     <group position={position}>
-      {/* Key body — dark charcoal (visible, not invisible black) */}
+      {/* Key body — classic beige/gray */}
       <RoundedBox
         args={[keyW, keyH, keyD]}
         radius={0.025}
@@ -67,15 +61,14 @@ function Keycap({ position, width, label, rowIdx }) {
         receiveShadow
       >
         <meshPhysicalMaterial
-          color={isWASD ? '#151520' : '#121218'}
+          color={colors.body}
           metalness={0.1}
-          roughness={0.5}
-          clearcoat={0.6}
-          clearcoatRoughness={0.2}
+          roughness={0.7}
+          clearcoat={0.1}
         />
       </RoundedBox>
 
-      {/* Key top face — slightly lighter so it's visible from above */}
+      {/* Key top face — lighter so it's visible from above */}
       <RoundedBox
         args={[keyW - 0.06, 0.03, keyD - 0.06]}
         radius={0.012}
@@ -83,50 +76,12 @@ function Keycap({ position, width, label, rowIdx }) {
         position={[0, keyH / 2 - 0.005, 0]}
       >
         <meshPhysicalMaterial
-          color={isWASD ? '#1a1a2a' : '#161620'}
+          color={colors.top}
           metalness={0.05}
-          roughness={0.4}
-          clearcoat={0.8}
-          clearcoatRoughness={0.1}
+          roughness={0.6}
+          clearcoat={0.1}
         />
       </RoundedBox>
-
-      {/* Neon underglow — thin strip at the bottom of the key */}
-      <mesh position={[0, -keyH / 2 + 0.01, 0]}>
-        <boxGeometry args={[keyW + 0.015, 0.012, keyD + 0.015]} />
-        <meshStandardMaterial
-          color={neonColor}
-          emissive={neonColor}
-          emissiveIntensity={isWASD ? 5 : 2.5}
-          transparent
-          opacity={isWASD ? 0.7 : 0.4}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/* Neon top edge glow — thin border on top surface edge */}
-      <mesh position={[0, keyH / 2 + 0.001, 0]}>
-        <boxGeometry args={[keyW - 0.02, 0.004, keyD - 0.02]} />
-        <meshStandardMaterial
-          color={neonColor}
-          emissive={neonColor}
-          emissiveIntensity={isWASD ? 3 : 1.2}
-          transparent
-          opacity={isWASD ? 0.45 : 0.15}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/* WASD point lights for extra glow */}
-      {isWASD && (
-        <pointLight
-          position={[0, keyH / 2 + 0.08, 0]}
-          color={neonColor}
-          intensity={0.2}
-          distance={0.7}
-          decay={2}
-        />
-      )}
     </group>
   );
 }
@@ -181,7 +136,7 @@ export default function Keyboard() {
   return (
     // Tilt the keyboard toward camera: slight X tilt to see key tops, slight Y rotation
     <group ref={groupRef} rotation={[0.35, -0.25, 0]} position={[0, -0.5, 1]} scale={0.9}>
-      {/* Keyboard case — dark aluminum */}
+      {/* Keyboard case — classic beige plastic */}
       <RoundedBox
         args={[caseWidth, caseHeight, caseDepth]}
         radius={0.08}
@@ -191,16 +146,14 @@ export default function Keyboard() {
         receiveShadow
       >
         <meshPhysicalMaterial
-          color="#0a0a0e"
-          metalness={0.85}
-          roughness={0.25}
-          clearcoat={0.6}
-          clearcoatRoughness={0.2}
-          envMapIntensity={1.5}
+          color="#dcdbd1"
+          metalness={0.1}
+          roughness={0.8}
+          clearcoat={0.1}
         />
       </RoundedBox>
 
-      {/* Plate surface between keys — slightly reflective to catch neon */}
+      {/* Plate surface between keys */}
       <RoundedBox
         args={[caseWidth - 0.12, 0.03, caseDepth - 0.12]}
         radius={0.05}
@@ -208,40 +161,11 @@ export default function Keyboard() {
         position={[0, -0.01, 0]}
       >
         <meshPhysicalMaterial
-          color="#08080d"
-          metalness={0.6}
-          roughness={0.35}
-          clearcoat={0.4}
+          color="#a0a09a"
+          metalness={0.3}
+          roughness={0.6}
         />
       </RoundedBox>
-
-      {/* Front LED underglow strip */}
-      <mesh position={[0, -caseHeight / 2 + 0.02, caseDepth / 2 - 0.02]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[caseWidth - 0.2, 0.05]} />
-        <meshStandardMaterial
-          color="#00f0ff"
-          emissive="#00f0ff"
-          emissiveIntensity={4}
-          transparent
-          opacity={0.2}
-          toneMapped={false}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      {/* Rear LED strip */}
-      <mesh position={[0, -caseHeight / 2 + 0.02, -caseDepth / 2 + 0.02]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[caseWidth - 0.2, 0.04]} />
-        <meshStandardMaterial
-          color="#8855ff"
-          emissive="#8855ff"
-          emissiveIntensity={3}
-          transparent
-          opacity={0.12}
-          toneMapped={false}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
 
       {/* Keycaps */}
       {keys.map((k) => (

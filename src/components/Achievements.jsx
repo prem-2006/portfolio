@@ -5,6 +5,7 @@ import {
   FaCubes,
   FaBookOpen,
   FaRocket,
+  FaGithub,
 } from 'react-icons/fa';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -43,6 +44,30 @@ const ACHIEVEMENTS = [
     description:
       'Contributed to ESP-Website (Django) — Bootstrap migration PRs merged. Active contributor to open source projects across the web ecosystem.',
     side: 'right',
+  },
+  {
+    icon: <FaGithub />,
+    title: 'GitHub Contributions',
+    date: '2025',
+    description:
+      'Consistent open source contributions and active streak on GitHub.',
+    side: 'left',
+  },
+  {
+    icon: <FaCode />,
+    title: 'LeetCode',
+    date: '2023 – Present',
+    description:
+      'Active problem solver on LeetCode with consistent participation.',
+    side: 'right',
+  },
+  {
+    icon: <FaCubes />,
+    title: 'CodeChef',
+    date: '2023 – Present',
+    description:
+      'Active competitor on CodeChef. Solved 1100+ problems.',
+    side: 'left',
   },
 ];
 
