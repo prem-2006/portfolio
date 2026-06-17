@@ -30,16 +30,16 @@ const ACHIEVEMENTS = [
   },
   {
     icon: <FaCubes />,
-    title: 'GSIC Participant',
+    title: 'GSoC Participant',
     date: '2026',
     description:
-      'Participated in the Global Social Innovation Challenge (GSIC).',
+      'Participated in Google Summer of Code (GSoC).',
     side: 'left',
   },
   {
     icon: <FaCode />,
     title: 'Open Source Contributions',
-    date: '2023 – Present',
+    date: '2025',
     description:
       'Contributed to ESP-Website (Django) — Bootstrap migration PRs merged. Active contributor to open source projects across the web ecosystem.',
     side: 'right',
