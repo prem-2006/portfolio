@@ -1,6 +1,7 @@
 import { useRef, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { RoundedBox } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import useDisassembleAnimation from '../../hooks/useDisassembleAnimation';
 
 // Key unit size
@@ -32,27 +33,28 @@ const ROWS = [
   ],
 ];
 
-const WASD_KEYS = new Set(['W', 'A', 'S', 'D']);
-const MODIFIER_KEYS = new Set(['Esc', 'Tab', 'Caps', '⇧', 'Ctrl', '❖', 'Alt', 'Fn', '☰', '↵', '⌫']);
-const NUMBER_ROW = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']);
-
-function getKeyColors(label) {
-  if (label === 'Esc') return { body: '#c45555', top: '#d46565' }; // retro red esc
-  if (label === '↵') return { body: '#5588c4', top: '#6598d4' }; // retro blue enter
-  if (MODIFIER_KEYS.has(label)) return { body: '#b0afa4', top: '#c0bfb4' };
-  return { body: '#dbdad3', top: '#ebeae3' }; // Alphanumeric
+function getGradientColor(x, totalWidth) {
+  const t = Math.max(0, Math.min(1, (x + totalWidth / 2) / totalWidth));
+  const color = new THREE.Color();
+  if (t < 0.33) {
+    color.lerpColors(new THREE.Color('#ff4400'), new THREE.Color('#ff00bb'), t / 0.33);
+  } else if (t < 0.66) {
+    color.lerpColors(new THREE.Color('#ff00bb'), new THREE.Color('#aa00ff'), (t - 0.33) / 0.33);
+  } else {
+    color.lerpColors(new THREE.Color('#aa00ff'), new THREE.Color('#00eeff'), (t - 0.66) / 0.34);
+  }
+  return '#' + color.getHexString();
 }
 
-// Keys are laid out on the XZ plane: width=X, depth=Z, height=Y (sticking up)
-function Keycap({ position, width, label, rowIdx }) {
-  const keyW = width * U - KEY_GAP;   // X dimension
-  const keyD = U - KEY_GAP;            // Z dimension
-  const keyH = KEY_HEIGHT;              // Y dimension (sticking up)
-  const colors = getKeyColors(label);
+function Keycap({ position, width, label, rowIdx, totalWidth }) {
+  const keyW = width * U - KEY_GAP;
+  const keyD = U - KEY_GAP;
+  const keyH = KEY_HEIGHT;
+  const neonColor = getGradientColor(position[0], totalWidth);
 
   return (
     <group position={position}>
-      {/* Key body — classic beige/gray */}
+      {/* Key body — dark charcoal/black */}
       <RoundedBox
         args={[keyW, keyH, keyD]}
         radius={0.025}
@@ -61,14 +63,14 @@ function Keycap({ position, width, label, rowIdx }) {
         receiveShadow
       >
         <meshPhysicalMaterial
-          color={colors.body}
-          metalness={0.1}
-          roughness={0.7}
-          clearcoat={0.1}
+          color="#0d0d12"
+          metalness={0.2}
+          roughness={0.6}
+          clearcoat={0.3}
         />
       </RoundedBox>
 
-      {/* Key top face — lighter so it's visible from above */}
+      {/* Key top face — slightly lighter to differentiate */}
       <RoundedBox
         args={[keyW - 0.06, 0.03, keyD - 0.06]}
         radius={0.012}
@@ -76,12 +78,25 @@ function Keycap({ position, width, label, rowIdx }) {
         position={[0, keyH / 2 - 0.005, 0]}
       >
         <meshPhysicalMaterial
-          color={colors.top}
-          metalness={0.05}
-          roughness={0.6}
-          clearcoat={0.1}
+          color="#15151a"
+          metalness={0.1}
+          roughness={0.5}
+          clearcoat={0.5}
         />
       </RoundedBox>
+
+      {/* Neon underglow — below the key */}
+      <mesh position={[0, -keyH / 2 + 0.01, 0]}>
+        <boxGeometry args={[keyW + 0.015, 0.012, keyD + 0.015]} />
+        <meshStandardMaterial
+          color={neonColor}
+          emissive={neonColor}
+          emissiveIntensity={4}
+          transparent
+          opacity={0.7}
+          toneMapped={false}
+        />
+      </mesh>
     </group>
   );
 }
@@ -93,7 +108,14 @@ export default function Keyboard() {
     scatterRadius: 8,
   });
 
-  // Keys laid out on XZ plane: X=columns, Z=rows (front to back)
+  const wrapperRef = useRef();
+
+  useFrame((state, delta) => {
+    if (wrapperRef.current) {
+      wrapperRef.current.rotation.y += delta * 0.4;
+    }
+  });
+
   const keys = useMemo(() => {
     const items = [];
     let keyIndex = 0;
@@ -106,7 +128,6 @@ export default function Keyboard() {
       row.forEach(([label, widthU]) => {
         const keyW = widthU * U;
         const x = xCursor + keyW / 2;
-        // Z goes from negative (back/top row) to positive (front/bottom row)
         const z = (rowIdx - totalRows / 2 + 0.5) * (U + KEY_GAP * 0.5);
 
         items.push({
@@ -115,6 +136,7 @@ export default function Keyboard() {
           label,
           rowIdx,
           key: keyIndex,
+          totalWidth,
         });
 
         xCursor += keyW;
@@ -129,54 +151,67 @@ export default function Keyboard() {
     animateIn();
   }, [animateIn]);
 
-  const caseWidth = ROWS[0].reduce((sum, [, w]) => sum + w, 0) * U + 0.3;
-  const caseDepth = ROWS.length * (U + KEY_GAP * 0.5) + 0.3;
-  const caseHeight = 0.25;
+  const caseWidth = ROWS[0].reduce((sum, [, w]) => sum + w, 0) * U + 0.4;
+  const caseDepth = ROWS.length * (U + KEY_GAP * 0.5) + 0.4;
+  const caseHeight = 0.3;
 
   return (
-    // Tilt the keyboard toward camera: slight X tilt to see key tops, slight Y rotation
-    <group ref={groupRef} rotation={[0.35, -0.25, 0]} position={[0, -0.5, 1]} scale={0.9}>
-      {/* Keyboard case — classic beige plastic */}
-      <RoundedBox
-        args={[caseWidth, caseHeight, caseDepth]}
-        radius={0.08}
-        smoothness={6}
-        position={[0, -caseHeight / 2 + 0.02, 0]}
-        castShadow
-        receiveShadow
-      >
-        <meshPhysicalMaterial
-          color="#dcdbd1"
-          metalness={0.1}
-          roughness={0.8}
-          clearcoat={0.1}
-        />
-      </RoundedBox>
+    <group ref={wrapperRef} position={[0, -0.5, 1]} scale={0.9}>
+      <group ref={groupRef} rotation={[0.35, -0.25, 0]}>
+        {/* Keyboard case — Transparent Acrylic */}
+        <RoundedBox
+          args={[caseWidth, caseHeight, caseDepth]}
+          radius={0.1}
+          smoothness={6}
+          position={[0, -caseHeight / 2 + 0.02, 0]}
+          castShadow
+          receiveShadow
+        >
+          <meshPhysicalMaterial
+            color="#ffffff"
+            transmission={0.95}
+            opacity={1}
+            metalness={0.1}
+            roughness={0.05}
+            ior={1.5}
+            thickness={0.5}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+          />
+        </RoundedBox>
 
-      {/* Plate surface between keys */}
-      <RoundedBox
-        args={[caseWidth - 0.12, 0.03, caseDepth - 0.12]}
-        radius={0.05}
-        smoothness={4}
-        position={[0, -0.01, 0]}
-      >
-        <meshPhysicalMaterial
-          color="#a0a09a"
-          metalness={0.3}
-          roughness={0.6}
-        />
-      </RoundedBox>
+        {/* Plate surface between keys */}
+        <RoundedBox
+          args={[caseWidth - 0.12, 0.03, caseDepth - 0.12]}
+          radius={0.05}
+          smoothness={4}
+          position={[0, -0.01, 0]}
+        >
+          <meshPhysicalMaterial
+            color="#ffffff"
+            transmission={0.9}
+            roughness={0.1}
+            thickness={0.1}
+          />
+        </RoundedBox>
 
-      {/* Keycaps */}
-      {keys.map((k) => (
-        <Keycap
-          key={k.key}
-          position={k.position}
-          width={k.width}
-          label={k.label}
-          rowIdx={k.rowIdx}
-        />
-      ))}
+        {/* RGB Point Lights inside the acrylic base */}
+        <pointLight position={[-caseWidth / 3, -caseHeight / 2, 0]} color="#ff4400" intensity={4} distance={caseWidth} />
+        <pointLight position={[0, -caseHeight / 2, 0]} color="#ff00bb" intensity={4} distance={caseWidth} />
+        <pointLight position={[caseWidth / 3, -caseHeight / 2, 0]} color="#00eeff" intensity={4} distance={caseWidth} />
+
+        {/* Keycaps */}
+        {keys.map((k) => (
+          <Keycap
+            key={k.key}
+            position={k.position}
+            width={k.width}
+            label={k.label}
+            rowIdx={k.rowIdx}
+            totalWidth={k.totalWidth}
+          />
+        ))}
+      </group>
     </group>
   );
 }
